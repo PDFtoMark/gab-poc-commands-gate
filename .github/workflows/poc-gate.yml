@@ -2,6 +2,11 @@ name: poc-commands-gate
 
 on: issue_comment
 
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
 jobs:
   gate:
     if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/backport')
@@ -19,6 +24,9 @@ jobs:
           permission-level: write
 
       - name: privileged-downstream
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "BYPASSED: privileged downstream step executed"
-          echo "event action = ${{ github.event.action }}"
+          echo "BYPASSED: privileged downstream step executed (event action=${{ github.event.action }})"
+          gh api "repos/$GITHUB_REPOSITORY/issues/1/comments" \
+            -f body="poc-write-from-${{ github.event.action }}-event" --jq .id
