@@ -1,0 +1,24 @@
+name: poc-commands-gate
+
+on: issue_comment
+
+jobs:
+  gate:
+    if: github.event.issue.pull_request && startsWith(github.event.comment.body, '/backport')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract Command
+        id: command
+        uses: xt0rted/slash-command-action@865ee04a1dfc8aa2571513eee8e84b5377153511 # v1
+        with:
+          repo-token: "ghp_poc_invalid_token_no_access"
+          command: backport
+          reaction: "false"
+          reaction-type: "eyes"
+          allow-edits: "false"
+          permission-level: write
+
+      - name: privileged-downstream
+        run: |
+          echo "BYPASSED: privileged downstream step executed"
+          echo "event action = ${{ github.event.action }}"
